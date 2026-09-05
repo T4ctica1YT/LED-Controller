@@ -1,4 +1,4 @@
-# Bluetooth LED Controller (ELK-BLEDOM)
+# Bluetooth LED Controller
 
 A simple and lightweight LED Controller script similar to those found on mobile devices, but made for PC with Python.
 
