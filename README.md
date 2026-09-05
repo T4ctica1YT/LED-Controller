@@ -1,8 +1,6 @@
 # Bluetooth LED Controller (ELK-BLEDOM)
 
-A small, lightweight python script to control Bluetooth LED
-strips/bulbs (and the common clones sold under names like **LEDBLE**,
-**MELK**, **ELK-BULB**, **ELK-LAMPL**).
+A simple LED Controller app similar to those found on mobile devices, but made for PC with Python.
 
 ## Features
 
