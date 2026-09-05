@@ -1,9 +1,10 @@
 # Bluetooth LED Controller (ELK-BLEDOM)
 
-A simple LED Controller app similar to those found on mobile devices, but made for PC with Python.
+A simple and lightweight LED Controller script similar to those found on mobile devices, but made for PC with Python.
 
 ## Features
 
+- Simple UI
 - auto-detect compatible LED devices nearby
 - Turn LEDs **On** / **Off**
 - Pick **any custom RGB color** via a color picker
