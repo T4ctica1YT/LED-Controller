@@ -1,23 +1,5 @@
 #!/usr/bin/env python3
 """
-ELK-BLEDOM Bluetooth LED Controller
-------------------------------------
-A lightweight GUI app to control ELK-BLEDOM (and compatible: LEDBLE, MELK,
-ELK-BULB, ELK-LAMPL) Bluetooth LE LED strips/bulbs.
-
-Features:
-  - Scan for and auto-detect compatible LED devices
-  - Turn LEDs on / off
-  - Set any custom RGB color
-  - Quick preset color buttons
-  - Brightness control
-  - Settings menu: App theme (System / Light / Dark)
-  - Debug Terminal: in-app window showing every raw command/value sent
-    to the strip (the background OS console is hidden on Windows since
-    this replaces it)
-
-Requires: bleak  (pip install bleak)
-Tkinter ships with most Python installs already.
 
 Run:
     python led_controller.py
@@ -43,32 +25,11 @@ except ImportError:
         "Install it with:  pip install bleak"
     )
 
-# --------------------------------------------------------------------------
-# Protocol details
-#
-# ELK-BLEDOM style strips (and clones sold as LEDBLE / MELK / ELK-BULB /
-# ELK-LAMPL) use a simple 9-byte command frame:
-#
-#   [0x7e, 0x00, CMD, ARG1, ARG2, ARG3, ARG4, 0x00, 0xef]
-#
-# Known commands:
-#   Power ON  : 7e 00 04 f0 00 01 ff 00 ef
-#   Power OFF : 7e 00 04 00 00 00 ff 00 ef
-#   Set Color : 7e 00 05 03 RR GG BB 00 ef
-#   Brightness: 7e 00 01 LL 00 00 00 00 ef   (LL = 0-100)
-#
-# The write characteristic is usually one of these UUIDs depending on the
-# exact clone/firmware:
-#   0000fff3-0000-1000-8000-00805f9b34fb   (most common - "ELK-BLE" type)
-#   0000ffe1-0000-1000-8000-00805f9b34fb   (LEDBLE / MELK type)
-# --------------------------------------------------------------------------
-
 CANDIDATE_WRITE_UUIDS = [
     "0000fff3-0000-1000-8000-00805f9b34fb",
     "0000ffe1-0000-1000-8000-00805f9b34fb",
 ]
 
-# Name prefixes for the family of devices that speak this protocol.
 COMPATIBLE_NAME_PREFIXES = (
     "ELK-BLE",
     "ELK-BULB",
@@ -131,13 +92,6 @@ def describe_command(data: bytes) -> str:
     return "Unknown command"
 
 
-# --------------------------------------------------------------------------
-# Settings persistence
-#
-# A tiny JSON file in the user's home directory remembers the chosen theme
-# and whether the Debug Terminal should reopen automatically next launch.
-# --------------------------------------------------------------------------
-
 CONFIG_DIR = Path.home() / ".led_controller"
 CONFIG_FILE = CONFIG_DIR / "settings.json"
 CRASH_LOG_FILE = CONFIG_DIR / "crash.log"
@@ -166,15 +120,6 @@ def save_settings(settings: dict):
             json.dump(settings, f, indent=2)
     except Exception:
         pass  # settings are a convenience, not critical - never crash on save
-
-
-# --------------------------------------------------------------------------
-# Theming
-#
-# ttk doesn't ship a real dark mode, so we hand-roll a Light and Dark
-# palette and switch the ttk "clam" theme's colors at runtime. "System"
-# just picks whichever of the two matches the OS's current setting.
-# --------------------------------------------------------------------------
 
 THEMES = {
     "Light": {
@@ -212,17 +157,6 @@ def detect_system_theme() -> str:
     return "Light"
 
 
-# --------------------------------------------------------------------------
-# Windows console hiding
-#
-# When this script is launched with the regular python.exe (rather than
-# pythonw.exe), Windows opens a console window behind the GUI. The app no
-# longer needs that console for anything - all BLE traffic is now shown in
-# the in-app Debug Terminal instead - so we hide it automatically. Nothing
-# is closed, just hidden, and uncaught errors are still captured (see
-# install_crash_handler below) so hiding it doesn't hide real problems.
-# --------------------------------------------------------------------------
-
 def hide_console_window():
     if os.name != "nt":
         return
@@ -256,12 +190,6 @@ def install_crash_handler():
         except Exception:
             pass
     sys.excepthook = handle_exception
-
-
-# --------------------------------------------------------------------------
-# Background asyncio loop so bleak (async) can be driven from a normal
-# synchronous Tkinter GUI.
-# --------------------------------------------------------------------------
 
 class AsyncLoopThread:
     def __init__(self):
@@ -365,10 +293,6 @@ class LedClient:
         await self._write(cmd_set_brightness(level))
 
 
-# --------------------------------------------------------------------------
-# GUI
-# --------------------------------------------------------------------------
-
 class App(tk.Tk):
     def __init__(self):
         super().__init__()
@@ -399,7 +323,7 @@ class App(tk.Tk):
         if self.settings["debug_terminal"]:
             self.open_debug_terminal()
 
-    # ---- Menu / settings ---------------------------------------------------
+   
     def _build_menu(self):
         menubar = tk.Menu(self)
 
@@ -472,7 +396,7 @@ class App(tk.Tk):
                 bg=colors["panel"], fg=colors["fg"], insertbackground=colors["fg"]
             )
 
-    # ---- Debug Terminal -----------------------------------------------------
+   
     def open_debug_terminal(self):
         if self.debug_win is not None and self.debug_win.winfo_exists():
             self.debug_win.lift()
@@ -540,7 +464,6 @@ class App(tk.Tk):
         if self.debug_text is not None and self.debug_win is not None and self.debug_win.winfo_exists():
             self._append_debug_line(line)
 
-    # ---- UI construction -------------------------------------------------
     def _build_ui(self):
         pad = {"padx": 10, "pady": 6}
 
@@ -644,7 +567,6 @@ class App(tk.Tk):
     def log(self, msg):
         self.log_var.set(msg)
 
-    # ---- Actions -----------------------------------------------------------
     def on_scan(self):
         self.scan_btn.configure(state="disabled")
         self.device_combo.set("")
